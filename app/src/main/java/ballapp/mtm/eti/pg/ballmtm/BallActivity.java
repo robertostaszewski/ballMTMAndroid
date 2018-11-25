@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +23,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class BallActivity extends AppCompatActivity {
 
-    public final static float OBSTACLE_SPEED_LOOS_CONST = 0.8f;
+    public final static float OBSTACLE_SPEED_LOOS_CONST = 0.6f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        hideStatusBar();
+//        hideStatusBar();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Display display = getWindowManager().getDefaultDisplay();
@@ -189,27 +191,31 @@ public class BallActivity extends AppCompatActivity {
         public void detectCollision(Ball ball) {
             Rect p = obstacle.rect;
             if (ball.right + ball.xSpeed >= p.left
-                    && ball.left < p.left
-                    && ball.top < p.bottom
-                    && ball.bottom > p.top) {
+                    && ball.left + ball.xSpeed < p.left
+                    && ball.top + ball.xSpeed < p.bottom
+                    && ball.bottom + ball.xSpeed > p.top
+                    && ball.xSpeed > 0) {
                 ball.setxSpeed(-ball.xSpeed * OBSTACLE_SPEED_LOOS_CONST);
                 ball.setX(p.left - ball.r);
             } else if (ball.left + ball.xSpeed <= p.right
-                    && ball.right > p.right
-                    && ball.top < p.bottom
-                    && ball.bottom > p.top) {
+                    && ball.right + ball.xSpeed > p.right
+                    && ball.top + ball.xSpeed < p.bottom
+                    && ball.bottom + ball.xSpeed > p.top
+                    && ball.xSpeed< 0) {
                 ball.setxSpeed(-ball.xSpeed * OBSTACLE_SPEED_LOOS_CONST);
                 ball.setX(p.right + ball.r);
             } else if (ball.bottom + ball.ySpeed >= p.top
-                    && ball.top < p.top
-                    && ball.left < p.right
-                    && ball.right > p.left) {
+                    && ball.top + ball.ySpeed < p.top
+                    && ball.left + ball.ySpeed < p.right
+                    && ball.right + ball.ySpeed > p.left
+                    && ball.ySpeed > 0) {
                 ball.setySpeed(-ball.ySpeed * OBSTACLE_SPEED_LOOS_CONST);
                 ball.setY(p.top - ball.r);
             } else if (ball.top + ball.ySpeed <= p.bottom
-                    && ball.bottom > p.bottom
-                    && ball.left < p.right
-                    && ball.right > p.left) {
+                    && ball.bottom + ball.ySpeed > p.bottom
+                    && ball.left + ball.ySpeed < p.right
+                    && ball.right + ball.ySpeed > p.left
+                    && ball.ySpeed < 0) {
                 ball.setySpeed(-ball.ySpeed * OBSTACLE_SPEED_LOOS_CONST);
                 ball.setY(p.bottom + ball.r);
             }
@@ -260,7 +266,8 @@ public class BallActivity extends AppCompatActivity {
 
         @Override
         public void detectCollision(Ball ball) {
-            if (Math.abs(ball.left) < target.r * 2 && Math.abs(ball.top) < target.r * 2) {
+            if (Math.abs(ball.x - target.x) < target.r * 2
+                    && Math.abs(ball.y - target.y) < target.r * 2) {
                 changeLocation();
                 pointsText.value++;
             }
