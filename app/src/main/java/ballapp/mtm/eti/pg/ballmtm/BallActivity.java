@@ -189,36 +189,45 @@ public class BallActivity extends AppCompatActivity {
 
         @Override
         public void detectCollision(Ball ball) {
+            float obstacleWidth = obstacle.right - obstacle.left;
+            float obstacleHight = obstacle.bottom - obstacle.top;
+            float obstacleCenterX = obstacleWidth / 2 + obstacle.left;
+            float obstacleCenterY = obstacleHight / 2 + obstacle.top;
+            float distX = ball.x - obstacleCenterX;
+            float distY = ball.y - obstacleCenterY;
+
+            float w = (float) (0.5 * (2 * ball.r + obstacleWidth));
+            float h = (float) (0.5 * (2 * ball.r  + obstacleHight));
+
             Rect p = obstacle.rect;
-            if (ball.right + ball.xSpeed >= p.left
-                    && ball.left + ball.xSpeed < p.left
-                    && ball.top + ball.xSpeed < p.bottom
-                    && ball.bottom + ball.xSpeed > p.top
-                    && ball.xSpeed > 0) {
-                ball.setxSpeed(-ball.xSpeed * OBSTACLE_SPEED_LOOS_CONST);
-                ball.setX(p.left - ball.r);
-            } else if (ball.left + ball.xSpeed <= p.right
-                    && ball.right + ball.xSpeed > p.right
-                    && ball.top + ball.xSpeed < p.bottom
-                    && ball.bottom + ball.xSpeed > p.top
-                    && ball.xSpeed< 0) {
-                ball.setxSpeed(-ball.xSpeed * OBSTACLE_SPEED_LOOS_CONST);
-                ball.setX(p.right + ball.r);
-            } else if (ball.bottom + ball.ySpeed >= p.top
-                    && ball.top + ball.ySpeed < p.top
-                    && ball.left + ball.ySpeed < p.right
-                    && ball.right + ball.ySpeed > p.left
-                    && ball.ySpeed > 0) {
-                ball.setySpeed(-ball.ySpeed * OBSTACLE_SPEED_LOOS_CONST);
-                ball.setY(p.top - ball.r);
-            } else if (ball.top + ball.ySpeed <= p.bottom
-                    && ball.bottom + ball.ySpeed > p.bottom
-                    && ball.left + ball.ySpeed < p.right
-                    && ball.right + ball.ySpeed > p.left
-                    && ball.ySpeed < 0) {
-                ball.setySpeed(-ball.ySpeed * OBSTACLE_SPEED_LOOS_CONST);
-                ball.setY(p.bottom + ball.r);
+            if (Math.abs(distX) <= w && Math.abs(distY) <= h) {
+                float wy = w * distY;
+                float hx = h * distX;
+
+                if (wy > hx) {
+                    if (wy > -hx) {
+                        ball.setySpeed(-ball.ySpeed * OBSTACLE_SPEED_LOOS_CONST);
+                        ball.setY(p.bottom + ball.r);
+                        /* collision at the top */
+                    } else {
+                        ball.setxSpeed(-ball.xSpeed * OBSTACLE_SPEED_LOOS_CONST);
+                        ball.setX(p.left - ball.r);
+                        /* on the left */
+                    }
+                } else {
+                    if (wy > -hx) {
+                        ball.setxSpeed(-ball.xSpeed * OBSTACLE_SPEED_LOOS_CONST);
+                        ball.setX(p.right + ball.r);
+                        /* on the right */
+                    } else {
+                        ball.setySpeed(-ball.ySpeed * OBSTACLE_SPEED_LOOS_CONST);
+                        ball.setY(p.top - ball.r);
+                        /* at the bottom */
+                    }
+                }
+
             }
+
         }
     }
 
