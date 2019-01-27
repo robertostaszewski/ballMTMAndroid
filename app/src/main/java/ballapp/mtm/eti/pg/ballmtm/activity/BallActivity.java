@@ -1,13 +1,11 @@
 package ballapp.mtm.eti.pg.ballmtm.activity;
 
-import android.content.pm.ActivityInfo;
+import android.app.Activity;
 import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Display;
-import android.view.View;
 import android.view.WindowManager;
 
 import java.util.ArrayList;
@@ -24,16 +22,15 @@ import ballapp.mtm.eti.pg.ballmtm.model.Screen;
 import ballapp.mtm.eti.pg.ballmtm.model.Target;
 import ballapp.mtm.eti.pg.ballmtm.view.BallView;
 
-public class BallActivity extends AppCompatActivity {
+public class BallActivity extends Activity {
 
     public final static float OBSTACLE_SPEED_LOOS_CONST = 0.6f;
+    private BallView ballView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        hideStatusBar();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -53,7 +50,8 @@ public class BallActivity extends AppCompatActivity {
         obstacles.add(new Obstacle(950, 800, 1050, 1300));
         obstacles.add(new Obstacle(400, 1800, 800, 1900));
 
-        BallView ballView = new BallView(this, ball, target, pointsText, obstacles);
+        this.ballView = new BallView(this, ball, target, pointsText, obstacles);
+        BallView ballView = this.ballView;
         setContentView(ballView);
 
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -71,10 +69,15 @@ public class BallActivity extends AppCompatActivity {
         }
     }
 
-    private void hideStatusBar() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ballView.onResume();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ballView.onPause();
+    }
 }
